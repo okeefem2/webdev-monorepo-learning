@@ -33,7 +33,7 @@ namespace API.Controllers
             return await _mediator.Send(new ActivityDetail.Query { Id = id }, ct);
         }
 
-        [HttpPost()]
+        [HttpPost()] 
         public async Task<ActionResult<Unit>> Create(CreateActivity.Command command)
         {
             return await _mediator.Send(command);

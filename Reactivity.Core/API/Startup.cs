@@ -1,4 +1,6 @@
-﻿using Application.Activity;
+﻿using API.middleware;
+using Application.Activity;
+using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -6,12 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Persistence;
 
 namespace API
 {
     public class Startup
     {
+
+        // TODO when adding jwt bearer, this will need to be added as a package reference
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -28,7 +33,10 @@ namespace API
                     Configuration.GetConnectionString("LocalDev")
                 );
             });
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllers().AddFluentValidation(cfg =>
+            {
+                cfg.RegisterValidatorsFromAssemblyContaining<CreateActivity>();
+            });
 
             // TODO this should be able to be done dynamically and in a seperate file
             // I am skeptical this is even needed
@@ -37,11 +45,12 @@ namespace API
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
-                app.UseDeveloperExceptionPage();
+                // app.UseDeveloperExceptionPage();
             }
             else
             {
@@ -49,8 +58,16 @@ namespace API
                 // app.UseHsts();
             }
 
-            // app.UseHttpsRedirection();
-            app.UseMvc();
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }
