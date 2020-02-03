@@ -1,14 +1,68 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace Persistence
 {
     public class Seed
     {
-        public static void SeedData(DataContext context)
+        public async static Task SeedData(DataContext context, UserManager<AppUser> userManager)
         {
+            if (!userManager.Users.Any())
+            {
+                var users = new List<AppUser>
+                {
+                    new AppUser
+                    {
+                        DisplayName = "Bear",
+                        UserName = "Bear",
+                        Email = "Bear@test.com"
+
+                    },
+                    new AppUser
+                    {
+                        DisplayName = "Flo",
+                        UserName = "Flo",
+                        Email = "Flo@test.com"
+
+                    },
+                    new AppUser
+                    {
+                        DisplayName = "Beep",
+                        UserName = "Beep",
+                        Email = "Beep@test.com"
+
+                    },
+                    new AppUser
+                    {
+                        DisplayName = "Coop",
+                        UserName = "Coop",
+                        Email = "Coop@test.com"
+
+                    },
+                    new AppUser
+                    {
+                        DisplayName = "Mo",
+                        UserName = "Mo",
+                        Email = "Mo@test.com"
+
+                    },
+                    new AppUser
+                    {
+                        DisplayName = "Dilla",
+                        UserName = "Dilla",
+                        Email = "Dilla@test.com"
+
+                    }
+                };
+                foreach (var user in users)
+                {
+                    await userManager.CreateAsync(user, "Pa$$w0rd");
+                }
+            }
             if (!context.Activities.Any())
             {
                 var activities = new List<Activity>
